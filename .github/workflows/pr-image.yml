@@ -3,11 +3,10 @@ name: Build and Push PR Image
 on:
   pull_request:
     branches:
-      - dev-main
+      - main
     types:
       - opened
       - synchronize
-      - reopened
 
 permissions:
   contents: read
