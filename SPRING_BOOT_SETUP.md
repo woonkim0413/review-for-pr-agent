@@ -275,3 +275,27 @@ ghcr.io/<owner>/<repository>:sha-<commit-sha>
 ```
 
 외부 fork에서 생성된 PR은 보안상 GHCR push 없이 테스트와 이미지 빌드만 수행한다. `pull_request_target`으로 권한 있는 토큰과 외부 PR 코드를 함께 실행하지 않는다.
+
+## `feature/all` → `dev` JUnit CI
+
+워크플로 파일:
+
+```text
+.github/workflows/junit-feature-all.yml
+```
+
+다음 조건의 PR에서만 실행된다.
+
+- 대상 브랜치: `dev`
+- 소스 브랜치: `feature/all`
+- 실행 이벤트: PR 생성(`opened`), 커밋 업데이트(`synchronize`), 재오픈(`reopened`)
+
+실행 단계:
+
+1. PR의 head commit을 checkout한다.
+2. Temurin JDK 17과 Gradle을 설정한다.
+3. Gradle Wrapper 실행 권한을 설정한다.
+4. `./gradlew test --no-daemon --console=plain`으로 JUnit 테스트를 실행한다.
+5. 테스트 실패 시 `build/test-results/test/`를 `junit-test-reports` Artifact로 업로드한다.
+
+이 workflow는 JUnit 테스트만 담당하며, Docker 이미지 생성과 GHCR push는 `pr-image.yml`에서 담당한다.
